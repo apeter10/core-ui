@@ -23,7 +23,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/sanji/core-ui"
+    "url": "https://github.com/Sanji-IO/core-ui"
+  },
+  "bugs": {
+    "url": "https://github.com/Sanji-IO/core-ui/issues"
   },
   "config": {
     "commitizen": {
