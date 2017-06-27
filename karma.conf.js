@@ -5,20 +5,11 @@ module.exports = function(config) {
     basePath: '',
     frameworks: ['jasmine'],
 
-    plugins: [require('karma-jasmine'), require('karma-chrome-launcher'), require('karma-spec-reporter')],
+    plugins: ['karma-jasmine', 'karma-chrome-launcher', 'karma-coverage', 'karma-spec-reporter'],
 
     client: {
       builtPaths: [libBase], // add more spec base paths as needed
       clearContext: false // leave Jasmine Spec Runner output visible in browser
-    },
-
-    customLaunchers: {
-      // From the CLI. Not used here but interesting
-      // chrome setup for travis CI using chromium
-      Chrome_travis_ci: {
-        base: 'Chrome',
-        flags: ['--no-sandbox']
-      }
     },
 
     files: [
@@ -72,13 +63,13 @@ module.exports = function(config) {
 
     exclude: [],
     preprocessors: {},
-    reporters: ['progress', 'kjhtml'],
+    reporters: ['spec', 'coverage'],
 
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Chrome'],
+    browsers: ['ChromeHeadless'],
     singleRun: false
   });
 };
