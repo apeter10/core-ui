@@ -1,6 +1,6 @@
 {
   "name": "@sanji/core-lib",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "Sanji core ui lib based on angular 4+",
   "main": "./bundles/core-lib.umd.js",
   "module": "./core-lib.es5.js",
@@ -62,7 +62,8 @@
     "integration": "npm run integration:aot && npm run integration:jit",
     "integration:jit": "cd integration && npm run e2e",
     "integration:aot": "cd integration && npm run e2e:aot",
-    "lint": "tslint ./src/**/*.ts -t verbose"
+    "lint": "tslint ./src/**/*.ts -t verbose",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "peerDependencies": {
     "@angular/core": ">=4.0.0 <5.0.0 || >=4.0.0-beta <5.0.0"
