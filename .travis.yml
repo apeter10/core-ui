@@ -15,7 +15,6 @@ before_script: greenkeeper-lockfile-update
 script:
   - yarn run lint
   - yarn run test:once
-  - yarn run integration
 after_script: greenkeeper-lockfile-upload
 after_success:
   - yarn run semantic-release
