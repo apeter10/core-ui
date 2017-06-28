@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { LibService } from 'core-lib';
+import { LibService } from '@sanji/core-lib';
 
 @Component({
   selector: 'integration-app',
-  templateUrl: './app.component.html',
+  templateUrl: './app.component.html'
 })
 export class AppComponent {
   meaning: number;

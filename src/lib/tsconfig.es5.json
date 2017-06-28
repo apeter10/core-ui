@@ -15,7 +15,7 @@
     "strictMetadataEmit": true,
     "skipTemplateCodegen": true,
     "flatModuleOutFile": "core-lib.js",
-    "flatModuleId": "core-lib",
+    "flatModuleId": "@sanji/core-lib",
     "genDir": "../../out-tsc/lib-gen-dir/"
   }
 }
