@@ -21,11 +21,21 @@ module.exports = function(wallaby) {
       { pattern: 'node_modules/zone.js/dist/async-test.js', instrument: false },
       { pattern: 'node_modules/zone.js/dist/fake-async-test.js', instrument: false },
 
-      { pattern: 'src/lib/**/*+(ts|html|css)', instrument: true, load: false },
-      { pattern: 'src/lib/**/*.spec.ts', ignore: true }
+      { pattern: 'src/lib/**/*.ts', instrument: true, load: false },
+      { pattern: 'src/lib/**/*.html', instrument: false },
+      { pattern: 'src/lib/**/*.css', instrument: false },
+      { pattern: 'src/lib/**/*.spec.ts', ignore: true },
+      { pattern: 'src/lib/**/*.d.ts', ignore: true }
     ],
 
-    tests: [{ pattern: 'src/lib/**/*.spec.ts', load: false }],
+    tests: [{ pattern: 'src/lib/src/**/*.spec.ts', load: false }],
+
+    // inlining templates
+    preprocessors: {
+      'src/lib/src/component/*.ts': require('wallaby-gulp-adapter')(
+        require('gulp-inline-ng2-template')({ base: 'src/lib/src/component', target: 'es5' })
+      )
+    },
 
     middleware: function(app, express) {
       app.use('/node_modules', express.static(require('path').join(__dirname, 'node_modules')));
@@ -34,7 +44,7 @@ module.exports = function(wallaby) {
     testFramework: 'jasmine',
 
     compilers: {
-      'src/lib/*.ts': wallaby.compilers.typeScript({
+      '**/*.ts': wallaby.compilers.typeScript({
         module: 'system', // or amd
         emitDecoratorMetadata: true,
         experimentalDecorators: true,
@@ -81,7 +91,8 @@ module.exports = function(wallaby) {
           '@angular/http/testing': 'npm:@angular/http/bundles/http-testing.umd.js',
           '@angular/router/testing': 'npm:@angular/router/bundles/router-testing.umd.js',
           '@angular/forms/testing': 'npm:@angular/forms/bundles/forms-testing.umd.js',
-          rxjs: 'npm:rxjs'
+          rxjs: 'npm:rxjs',
+          'ngx-toastr': 'npm:ngx-toastr/toastr.umd.js'
         },
 
         packages: {
