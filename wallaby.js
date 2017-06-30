@@ -2,8 +2,7 @@
 // https://marketplace.visualstudio.com/items?itemName=WallabyJs.wallaby-vscode
 // Note: Wallaby is not open source and costs money
 
-module.exports = function (wallaby) {
-
+module.exports = function(wallaby) {
   var compilerOptions = require('./src/lib/tsconfig.spec.json').compilerOptions;
 
   return {
@@ -22,51 +21,40 @@ module.exports = function (wallaby) {
       { pattern: 'node_modules/zone.js/dist/async-test.js', instrument: false },
       { pattern: 'node_modules/zone.js/dist/fake-async-test.js', instrument: false },
 
-      // { pattern: 'node_modules/rxjs/**/*.js', instrument: false },
-
-      { pattern: 'src/demo/systemjs.config.js', instrument: false },
-
-      { pattern: 'src/lib/**/*+(ts|html|css)', load: false },
+      { pattern: 'src/lib/**/*+(ts|html|css)', instrument: true, load: false },
       { pattern: 'src/lib/**/*.spec.ts', ignore: true }
     ],
 
-    tests: [
-      { pattern: 'src/lib/**/*.spec.ts', load: false }
-    ],
+    tests: [{ pattern: 'src/lib/**/*.spec.ts', load: false }],
 
-    middleware: function (app, express) {
+    middleware: function(app, express) {
       app.use('/node_modules', express.static(require('path').join(__dirname, 'node_modules')));
     },
 
     testFramework: 'jasmine',
 
     compilers: {
-      '**/*.ts': wallaby.compilers.typeScript(compilerOptions)
-    },
-
-    preprocessors: {
-      '**/*.js': function (file) {
-        return file.content.replace('moduleId: module.id', 'moduleId: __moduleName');
-      }
+      'src/lib/*.ts': wallaby.compilers.typeScript({
+        module: 'system', // or amd
+        emitDecoratorMetadata: true,
+        experimentalDecorators: true,
+        noImplicitAny: false
+      })
     },
 
     debug: true,
 
-    bootstrap: function (wallaby) {
+    setup: function(wallaby) {
       wallaby.delayStart();
 
       System.config({
         transpiler: 'none',
-        packages: {
-          'src/lib': {
-            meta: {
-              './*.js': {
-                scriptLoad: true
-              }
-            }
+        meta: {
+          'src/lib/*': {
+            scriptLoad: true,
+            format: 'register'
           }
         },
-
         paths: {
           'npm:': 'node_modules/'
         },
@@ -74,14 +62,36 @@ module.exports = function (wallaby) {
         // Assume npm: is set in `paths` in systemjs.config
         // Map the angular testing umd bundles
         map: {
+          app: 'src/lib/',
+          '@angular/core': 'npm:@angular/core/bundles/core.umd.js',
+          '@angular/common': 'npm:@angular/common/bundles/common.umd.js',
+          '@angular/compiler': 'npm:@angular/compiler/bundles/compiler.umd.js',
+          '@angular/platform-browser': 'npm:@angular/platform-browser/bundles/platform-browser.umd.js',
+          '@angular/platform-browser-dynamic':
+            'npm:@angular/platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js',
+          '@angular/http': 'npm:@angular/http/bundles/http.umd.js',
+          '@angular/router': 'npm:@angular/router/bundles/router.umd.js',
+          '@angular/forms': 'npm:@angular/forms/bundles/forms.umd.js',
           '@angular/core/testing': 'npm:@angular/core/bundles/core-testing.umd.js',
           '@angular/common/testing': 'npm:@angular/common/bundles/common-testing.umd.js',
           '@angular/compiler/testing': 'npm:@angular/compiler/bundles/compiler-testing.umd.js',
           '@angular/platform-browser/testing': 'npm:@angular/platform-browser/bundles/platform-browser-testing.umd.js',
-          '@angular/platform-browser-dynamic/testing': 'npm:@angular/platform-browser-dynamic/bundles/platform-browser-dynamic-testing.umd.js',
+          '@angular/platform-browser-dynamic/testing':
+            'npm:@angular/platform-browser-dynamic/bundles/platform-browser-dynamic-testing.umd.js',
           '@angular/http/testing': 'npm:@angular/http/bundles/http-testing.umd.js',
           '@angular/router/testing': 'npm:@angular/router/bundles/router-testing.umd.js',
-          '@angular/forms/testing': 'npm:@angular/forms/bundles/forms-testing.umd.js'
+          '@angular/forms/testing': 'npm:@angular/forms/bundles/forms-testing.umd.js',
+          rxjs: 'npm:rxjs'
+        },
+
+        packages: {
+          app: {
+            main: './index.js',
+            defaultExtension: 'js'
+          },
+          rxjs: {
+            defaultExtension: 'js'
+          }
         }
       });
 
@@ -89,30 +99,30 @@ module.exports = function (wallaby) {
         Promise.all([
           System.import('@angular/core/testing'),
           System.import('@angular/platform-browser-dynamic/testing')
-        ])
+        ]).then(function(providers) {
+          var coreTesting = providers[0];
+          var browserTesting = providers[1];
 
-          .then(function (providers) {
-            var coreTesting = providers[0];
-            var browserTesting = providers[1];
-
-            coreTesting.TestBed.initTestEnvironment(
-              browserTesting.BrowserDynamicTestingModule,
-              browserTesting.platformBrowserDynamicTesting());
-          })
+          coreTesting.TestBed.initTestEnvironment(
+            browserTesting.BrowserDynamicTestingModule,
+            browserTesting.platformBrowserDynamicTesting()
+          );
+        })
       ];
 
       for (var i = 0, len = wallaby.tests.length; i < len; i++) {
         promises.push(System['import'](wallaby.tests[i]));
       }
 
-      Promise.all(promises).then(function () {
-        wallaby.start();
-      }).catch(function (e) {
-        setTimeout(function () {
-          throw e;
-        }, 0);
-      });
+      Promise.all(promises)
+        .then(function() {
+          wallaby.start();
+        })
+        .catch(function(e) {
+          setTimeout(function() {
+            throw e;
+          }, 0);
+        });
     }
-
   };
 };
