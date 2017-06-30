@@ -9,11 +9,17 @@ describe('LibService', () => {
     });
   });
 
-  it('should create service', inject([LibService], (service: LibService) => {
-    expect(service).toBeTruthy();
-  }));
+  it(
+    'should create service',
+    inject([LibService], (service: LibService) => {
+      expect(service).toBeTruthy();
+    })
+  );
 
-  it('should return 42 from getMeaning', inject([LibService], (service: LibService) => {
-    expect(service.getMeaning()).toBe(42);
-  }));
+  it(
+    'should return 42 from getMeaning',
+    inject([LibService], (service: LibService) => {
+      expect(service.getMeaning()).toBe(42);
+    })
+  );
 });
